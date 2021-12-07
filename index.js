@@ -7,6 +7,7 @@ const isDev = process.env.NODE_ENV !== 'production' ? true : false
 const isMac = process.platform === 'darwin' ? true : false
 
 let mainWindow
+let aboutWindow
 
 function createMainWindow() {
     mainWindow = new BrowserWindow({
@@ -20,6 +21,21 @@ function createMainWindow() {
 
     // mainWindow.loadURL(`file://${__dirname}/app/index.html`)
     mainWindow.loadFile('./app/index.html')
+
+}
+
+function createAboutWindow() {
+    aboutWindow = new BrowserWindow({
+        width: 300,
+        height: 300,
+        title: "About ImageShrink",
+        icon: './assets/icons/Icon_256x256.png',
+        resizable: false,
+        backgroundColor: 'white'
+    })
+
+    // mainWindow.loadURL(`file://${__dirname}/app/index.html`)
+    aboutWindow.loadFile('./app/about.html')
 
 }
 
@@ -37,11 +53,30 @@ app.on('ready', () => {
 
 const menu = [
     ...(isMac ? [
-        { role: 'appMenu' }
+        { 
+            label: app.name,
+            submenu: [
+                {
+                    label: 'About ',
+                    click: createAboutWindow
+                }
+            ]
+         }
     ] : []),
     {
         role: 'filemenu'
     },
+    ...(!isMac ? [
+        {
+            label: 'Help',
+            submenu: [
+                {
+                    label: 'About',
+                    click: createAboutWindow
+                }
+            ]
+        }
+    ] : []),
     ...(isDev ? [
         {
             label: 'Developer',
