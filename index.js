@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, globalShortcut  } = require('electron')
+const { app, BrowserWindow, Menu, globalShortcut, ipcMain  } = require('electron')
 
 // set environment
 process.env.NODE_ENV = 'developer'
@@ -11,13 +11,27 @@ let aboutWindow
 
 function createMainWindow() {
     mainWindow = new BrowserWindow({
-        width: 500,
+        width: isDev ? 800 : 500,
         height: 600,
         title: "ImageShrink",
         icon: './assets/icons/Icon_256x256.png',
         resizable: isDev ? true : false,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        
+        // THESE ARE NEEDED SO IT ALLOWS ME TO USE REQUIRE IN THE INDEX.HTML FILE
+        // JUST LOOK AT THE BOTTOM TO REVIEW
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
+        }
+
+
     })
+
+    // this will automatically open dev tools if we are in development mode.
+    if(isDev) {
+        mainWindow.webContents.openDevTools()
+    }
 
     // mainWindow.loadURL(`file://${__dirname}/app/index.html`)
     mainWindow.loadFile('./app/index.html')
@@ -47,6 +61,8 @@ app.on('ready', () => {
     
     globalShortcut.register('CmdOrCtrl+R', () => mainWindow.reload() )
     globalShortcut.register(isMac ? 'Command+Alt+I' : 'Ctrl+Shift+I', () => mainWindow.toggleDevTools() )
+
+
 
     mainWindow.on('ready', () => mainWindow = null)
 })
@@ -89,6 +105,11 @@ const menu = [
         }
     ] : [])
 ]
+
+
+ipcMain.on('image:minimize', (e, options) => {
+    console.log(options)
+})
 
 app.on('window-all-closed', () => {
     if(!isMac) {
